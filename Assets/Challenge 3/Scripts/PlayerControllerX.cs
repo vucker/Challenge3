@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerControllerX : MonoBehaviour
@@ -7,6 +8,8 @@ public class PlayerControllerX : MonoBehaviour
     public bool gameOver;
 
     public float floatForce;
+    public float floatBoundForce;
+    public float boundUp;
     private float gravityModifier = 1.5f;
     private Rigidbody playerRb;
 
@@ -16,6 +19,7 @@ public class PlayerControllerX : MonoBehaviour
     private AudioSource playerAudio;
     public AudioClip moneySound;
     public AudioClip explodeSound;
+    public AudioClip boingSound;
 
 
     // Start is called before the first frame update
@@ -25,7 +29,7 @@ public class PlayerControllerX : MonoBehaviour
         playerAudio = GetComponent<AudioSource>();
         playerRb = GetComponent<Rigidbody>();
         // Apply a small upward force at the start of the game
-        playerRb.AddForce(Vector3.up * 5, ForceMode.Impulse);
+        playerRb.AddForce(Vector3.up * floatBoundForce, ForceMode.Impulse);
 
     }
 
@@ -37,6 +41,7 @@ public class PlayerControllerX : MonoBehaviour
         {
             playerRb.AddForce(Vector3.up * floatForce);
         }
+        CheckUp();
     }
 
     private void OnCollisionEnter(Collision other)
@@ -49,6 +54,7 @@ public class PlayerControllerX : MonoBehaviour
             gameOver = true;
             Debug.Log("Game Over!");
             Destroy(other.gameObject);
+            gameObject.SetActive(false);
         } 
 
         // if player collides with money, fireworks
@@ -59,7 +65,21 @@ public class PlayerControllerX : MonoBehaviour
             Destroy(other.gameObject);
 
         }
-
+        else if (other.gameObject.CompareTag("Ground"))
+        {
+            playerRb.AddForce(Vector3.up * floatForce * floatBoundForce, ForceMode.Impulse);
+            playerAudio.PlayOneShot(boingSound, 1.0f);
+        }
+    }
+    private void CheckUp()
+    {
+        if (playerRb.position.y >= boundUp)
+        {
+            Vector3 velocity = playerRb.velocity;
+            velocity.y = 0;
+            playerRb.velocity = velocity;
+            playerRb.position = new Vector3(playerRb.position.x, boundUp, playerRb.position.z);
+        }
     }
 
 }
