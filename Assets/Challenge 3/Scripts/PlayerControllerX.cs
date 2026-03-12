@@ -54,7 +54,7 @@ public class PlayerControllerX : MonoBehaviour
             gameOver = true;
             Debug.Log("Game Over!");
             Destroy(other.gameObject);
-            gameObject.SetActive(false);
+            Destroy(gameObject, 1.6f);
         } 
 
         // if player collides with money, fireworks
